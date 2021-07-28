@@ -63,20 +63,17 @@ def pu21_metric( I_test, I_reference, metric, display_model=None ):
     pu21 = pu21_encoder()
     P_test = pu21.encode( L_test )
     P_reference = pu21.encode( L_reference )
-    P_test = P_test.permute(2,1,0)
-    P_reference = P_reference.permute(2,1,0)
+    print("PReference", P_reference)
+    print("Test", P_test)
     if isinstance(metric, str):
         metricFunc = None
         if metric.lower() == 'psnr':
-            metricFunc = PSNR(1.0)
+            metricFunc = PSNR(255)
             #return peak_signal_noise_ratio(P_test.numpy(),P_reference.numpy(),data_range=1)
         if metric.lower() == 'ssim':
             # Note that we are passing floating point values, which are in the
             # range 0-256 for the luminance range 0.1 to 100 cd/m^2
-            metricFunc = SSIM(255)
-            # P_test = P_test.permute(1,2,0)
-            # P_reference = P_reference.permute(1,2,0)
-            # return structural_similarity(P_test.numpy(),P_reference.numpy(),multichannel=True,gaussian_weights=True, use_sample_covariance=False,data_range=255.0)
+            metricFunc = SSIM(255,kernel_size=3)
         if metricFunc==None:
             raise Exception( 'Unknown metric {}'.format(metric) )
         else:

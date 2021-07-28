@@ -10,27 +10,40 @@ import cv2
 
 I_ref = HDRutils.imread( os.path.join("..","matlab","examples",'nancy_church.hdr' ))
 I_ref = torch.tensor(I_ref)
+
+A = [[1,100],[45,80]]
+B = [[1,100],[45,80]]
+C = [[255,150],[170,15]]
+
+I_ref = torch.tensor([[[1,100],[45,80]],[[1,100],[45,80]],[[255,150],[170,15]]] ,dtype=torch.float)
+I_ref /= 255.0
+
+
+
 print(I_ref.mean())
-L_peak = 4000 # Peak luminance of an HDR display
+L_peak = 1000 # Peak luminance of an HDR display
 
 # HDR images are often given in relative photometric units. They MUST be
 # mapped to absolute amount of light emitted from the display. For that, 
 # we map the peak value in the image to the peak value of the display:
 
 I_ref = I_ref/torch.max(I_ref) * L_peak
-
 # Add Gaussian noise of 20% contrast. Make sure all values are greater than
 # 0.05.
+E = [[1,10],[5,0]]
+F = [[3,7],[20,-10]]
+G = [[-15,3],[-8,0]]
 
-I_test_noise = torch.maximum(I_ref + I_ref*torch.randn(I_ref.shape)*0.2, torch.tensor(0.05) )
+I_test_noise =I_ref + torch.tensor([[[1,10],[5,0]],[[3,7],[20,-10]],[[-15,3],[-8,0]]] ,dtype=torch.float)
+#I_test_noise = torch.maximum(I_ref + I_ref*torch.randn(I_ref.shape)*0.2, torch.tensor(0.05) )
 
-
+print("Print Ref", I_ref)
+print("Print Noise", I_test_noise)
 
 PSNR_noise = pu21_metric.pu21_metric( I_test_noise, I_ref, 'PSNR' )
 SSIM_noise = pu21_metric.pu21_metric( I_test_noise, I_ref, 'SSIM' )
 
 print('Image with noise: PSNR = {} dB, SSIM = {}'.format( PSNR_noise, SSIM_noise) )
-print(I_ref.shape)
 
 def matlab_style_gauss2D(shape=(3,3),sigma=0.5):
     """
@@ -46,10 +59,7 @@ def matlab_style_gauss2D(shape=(3,3),sigma=0.5):
         h /= sumh
     return h
 I_test_blur = cv2.GaussianBlur(I_ref.numpy(), ksize=(0, 0), sigmaX=3, borderType=cv2.BORDER_REPLICATE)
- #= torch.conv2d(I_ref.permute(2,1,0),torch.tensor(matlab_style_gauss2D()))
-#I_test_blur = ndimage.gaussian_filter(I_ref, sigma=3, order=0)
-#I_test_blur = imgaussfilt( I_ref, 3 )
 
-PSNR_noise = pu21_metric.pu21_metric( I_test_blur, I_ref, 'PSNR' )
-SSIM_noise = pu21_metric.pu21_metric( I_test_blur, I_ref, 'SSIM' )
-print('Image with blur: PSNR = {} dB, SSIM = {}'.format( PSNR_noise, SSIM_noise) )
+PSNR_blur = pu21_metric.pu21_metric( I_test_blur, I_ref, 'PSNR' )
+SSIM_blur = pu21_metric.pu21_metric( I_test_blur, I_ref, 'SSIM' )
+print('Image with blur: PSNR = {} dB, SSIM = {}'.format( PSNR_blur, SSIM_blur) )
