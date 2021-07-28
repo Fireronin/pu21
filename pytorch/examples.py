@@ -36,15 +36,6 @@ G = [[-15,3],[-8,0]]
 
 I_test_noise =I_ref + torch.tensor([[[1,10],[5,0]],[[3,7],[20,-10]],[[-15,3],[-8,0]]] ,dtype=torch.float)
 #I_test_noise = torch.maximum(I_ref + I_ref*torch.randn(I_ref.shape)*0.2, torch.tensor(0.05) )
-
-print("Print Ref", I_ref)
-print("Print Noise", I_test_noise)
-
-PSNR_noise = pu21_metric.pu21_metric( I_test_noise, I_ref, 'PSNR' )
-SSIM_noise = pu21_metric.pu21_metric( I_test_noise, I_ref, 'SSIM' )
-
-print('Image with noise: PSNR = {} dB, SSIM = {}'.format( PSNR_noise, SSIM_noise) )
-
 def matlab_style_gauss2D(shape=(3,3),sigma=0.5):
     """
     2D gaussian mask - should give the same result as MATLAB's
@@ -59,6 +50,17 @@ def matlab_style_gauss2D(shape=(3,3),sigma=0.5):
         h /= sumh
     return h
 I_test_blur = cv2.GaussianBlur(I_ref.numpy(), ksize=(0, 0), sigmaX=3, borderType=cv2.BORDER_REPLICATE)
+
+print("Print Ref", I_ref)
+print("Print Noise", I_test_noise)
+print("Print Blur", I_test_blur)
+
+
+PSNR_noise = pu21_metric.pu21_metric( I_test_noise, I_ref, 'PSNR' )
+SSIM_noise = pu21_metric.pu21_metric( I_test_noise, I_ref, 'SSIM' )
+
+print('Image with noise: PSNR = {} dB, SSIM = {}'.format( PSNR_noise, SSIM_noise) )
+
 
 PSNR_blur = pu21_metric.pu21_metric( I_test_blur, I_ref, 'PSNR' )
 SSIM_blur = pu21_metric.pu21_metric( I_test_blur, I_ref, 'SSIM' )
